@@ -1,0 +1,20 @@
+name: Mark Absentees
+
+on:
+  schedule:
+    # Runs daily at `18:15 UTC — adjust cron if you need a different timezone
+      - cron: '29 18 * * *' # Runs daily at 23:59 IST -> 18:29 UTC
+  workflow_dispatch: {}
+
+jobs:
+  mark-absentees:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run mark absentees script
+        env:
+          VITE_SUPABASE_URL: ${{ secrets.VITE_SUPABASE_URL }}
+          SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+        run: |
+          node -v
+          node -r dotenv/config scripts/mark_absentees.js
