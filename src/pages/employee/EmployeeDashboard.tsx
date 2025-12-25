@@ -7,9 +7,8 @@ import Layout from '../../components/Layout';
 import AttendanceSubmission from './AttendanceSubmission';
 import WorklogSubmission from './WorklogSubmission';
 import AttendanceCalendar from './AttendanceCalendar';
-import Salary from './Salary';
 
-type TabType = 'overview' | 'attendance' | 'worklog' | 'calendar' | 'salary';
+type TabType = 'overview' | 'attendance' | 'worklog' | 'calendar';
 
 export default function EmployeeDashboard() {
   const { profile } = useAuth();
@@ -77,7 +76,6 @@ export default function EmployeeDashboard() {
     { id: 'attendance' as TabType, label: 'Mark Attendance' },
     { id: 'worklog' as TabType, label: 'Submit Worklog' },
     { id: 'calendar' as TabType, label: 'Calendar' },
-    { id: 'salary' as TabType, label: 'Salary' },
   ];
 
   if (loading) {
@@ -176,7 +174,6 @@ export default function EmployeeDashboard() {
         {activeTab === 'attendance' && <AttendanceSubmission onSuccess={loadStats} />}
         {activeTab === 'worklog' && <WorklogSubmission onSuccess={loadStats} />}
         {activeTab === 'calendar' && <AttendanceCalendar />}
-        {activeTab === 'salary' && <Salary />}
       </div>
     </Layout>
   );

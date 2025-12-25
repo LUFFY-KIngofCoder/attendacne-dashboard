@@ -70,7 +70,6 @@ CREATE TABLE public.profiles (
   role text NOT NULL DEFAULT 'employee',        -- 'admin' | 'employee'
   department_id uuid REFERENCES public.departments(id) ON DELETE SET NULL,
   phone text,                                    -- nullable
-  monthly_salary numeric(12,2),                  -- monthly fixed salary (nullable)
   join_date date NOT NULL DEFAULT CURRENT_DATE,  -- employment start date
   is_active boolean NOT NULL DEFAULT true,       -- soft-delete flag
   weekly_wfh_limit integer,                      -- allowed WFH days per week (nullable = unlimited)
@@ -98,7 +97,7 @@ CREATE TABLE public.attendance (
   reason text,
   check_in_time timestamptz,
   check_out_time timestamptz,
-  is_approved boolean DEFAULT NULL,
+  is_approved boolean NOT NULL DEFAULT false,
   approved_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   approved_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -129,7 +128,7 @@ CREATE TABLE public.worklogs (
   tasks_completed text NOT NULL,
   hours_spent numeric(4,2) NOT NULL,
   attachments jsonb NOT NULL DEFAULT '[]'::jsonb,
-  is_approved boolean DEFAULT NULL,
+  is_approved boolean NOT NULL DEFAULT false,
   approved_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   approved_at timestamptz,
   review_note text,
@@ -171,39 +170,6 @@ CREATE TABLE public.events (
 );
 
 CREATE INDEX idx_events_date ON public.events (date);
-
--- Salary: cycles, earnings per employee, and payments
-CREATE TABLE public.salary_cycles (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  year integer NOT NULL,
-  month integer NOT NULL, -- 1-12
-  locked_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
-  locked_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT salary_cycle_unique UNIQUE (year, month)
-);
-
-CREATE TABLE public.salary_earnings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  cycle_id uuid NOT NULL REFERENCES public.salary_cycles(id) ON DELETE CASCADE,
-  employee_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  monthly_salary numeric(12,2) NOT NULL,
-  total_eligible_working_days integer NOT NULL,
-  per_day_salary numeric(12,6) NOT NULL,
-  gross_earned numeric(12,2) NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE public.salary_payments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  cycle_id uuid NOT NULL REFERENCES public.salary_cycles(id) ON DELETE CASCADE,
-  employee_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  amount numeric(12,2) NOT NULL,
-  paid_at timestamptz NOT NULL DEFAULT now(),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  note text
-);
-
 
 -- ==========================================
 -- 6. ENABLE RLS

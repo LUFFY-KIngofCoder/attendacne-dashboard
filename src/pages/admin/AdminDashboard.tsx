@@ -7,9 +7,8 @@ import EmployeeManagement from './EmployeeManagement';
 import AttendanceManagement from './AttendanceManagement';
 import WorklogManagement from './WorklogManagement';
 import AdminCalendar from './AdminCalendar';
-import SalaryManagement from './SalaryManagement';
 
-type TabType = 'overview' | 'employees' | 'attendance' | 'worklogs' | 'calendar' | 'salary';
+type TabType = 'overview' | 'employees' | 'attendance' | 'worklogs' | 'calendar';
 
 export default function AdminDashboard() {
   const [activeTab, setActiveTab] = useState<TabType>('overview');
@@ -58,7 +57,6 @@ export default function AdminDashboard() {
     { id: 'attendance' as TabType, label: 'Attendance' },
     { id: 'worklogs' as TabType, label: 'Worklogs' },
     { id: 'calendar' as TabType, label: 'Calendar' },
-    { id: 'salary' as TabType, label: 'Salary' },
   ];
 
   if (loading) {
@@ -166,7 +164,6 @@ export default function AdminDashboard() {
         {activeTab === 'attendance' && <AttendanceManagement />}
         {activeTab === 'worklogs' && <WorklogManagement />}
         {activeTab === 'calendar' && <AdminCalendar />}
-        {activeTab === 'salary' && <SalaryManagement />}
       </div>
     </Layout>
   );

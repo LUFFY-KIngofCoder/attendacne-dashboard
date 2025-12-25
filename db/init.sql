@@ -18,7 +18,6 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   role text NOT NULL DEFAULT 'employee',        -- 'admin' | 'employee'
   department_id uuid REFERENCES public.departments(id) ON DELETE SET NULL,
   phone text,                                   -- nullable contact number
-  monthly_salary numeric(12,2),                  -- monthly fixed salary (nullable)
   join_date date NOT NULL DEFAULT CURRENT_DATE, -- employment start date
   is_active boolean NOT NULL DEFAULT true,      -- soft-delete / active flag
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -26,6 +25,7 @@ CREATE TABLE IF NOT EXISTS public.profiles (
   CONSTRAINT profiles_role_check CHECK (role IN ('admin', 'employee'))
 );
 
+-- Attendance
 CREATE TABLE IF NOT EXISTS public.attendance (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
   employee_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS public.attendance (
   reason text,
   check_in_time timestamptz,
   check_out_time timestamptz,
-  is_approved boolean DEFAULT NULL,
+  is_approved boolean NOT NULL DEFAULT false,
   approved_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   approved_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),
@@ -45,39 +45,6 @@ CREATE INDEX IF NOT EXISTS idx_attendance_employee ON public.attendance (employe
 CREATE INDEX IF NOT EXISTS idx_attendance_date ON public.attendance (date);
 CREATE INDEX IF NOT EXISTS idx_attendance_status ON public.attendance (status);
 
--- Salary tables
-CREATE TABLE IF NOT EXISTS public.salary_cycles (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  year integer NOT NULL,
-  month integer NOT NULL,
-  locked_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
-  locked_at timestamptz,
-  created_at timestamptz NOT NULL DEFAULT now(),
-  CONSTRAINT salary_cycle_unique UNIQUE (year, month)
-);
-
-CREATE TABLE IF NOT EXISTS public.salary_earnings (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  cycle_id uuid NOT NULL REFERENCES public.salary_cycles(id) ON DELETE CASCADE,
-  employee_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  monthly_salary numeric(12,2) NOT NULL,
-  total_eligible_working_days integer NOT NULL,
-  per_day_salary numeric(12,6) NOT NULL,
-  gross_earned numeric(12,2) NOT NULL,
-  created_at timestamptz NOT NULL DEFAULT now()
-);
-
-CREATE TABLE IF NOT EXISTS public.salary_payments (
-  id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
-  cycle_id uuid NOT NULL REFERENCES public.salary_cycles(id) ON DELETE CASCADE,
-  employee_id uuid NOT NULL REFERENCES public.profiles(id) ON DELETE CASCADE,
-  amount numeric(12,2) NOT NULL,
-  paid_at timestamptz NOT NULL DEFAULT now(),
-  created_at timestamptz NOT NULL DEFAULT now(),
-  note text
-);
-
-
 -- Worklogs
 CREATE TABLE IF NOT EXISTS public.worklogs (
   id uuid PRIMARY KEY DEFAULT gen_random_uuid(),
@@ -86,7 +53,7 @@ CREATE TABLE IF NOT EXISTS public.worklogs (
   tasks_completed text NOT NULL,
   hours_spent numeric(4,2) NOT NULL,
   attachments jsonb NOT NULL DEFAULT '[]'::jsonb,
-  is_approved boolean DEFAULT NULL,
+  is_approved boolean NOT NULL DEFAULT false,
   approved_by uuid REFERENCES public.profiles(id) ON DELETE SET NULL,
   approved_at timestamptz,
   created_at timestamptz NOT NULL DEFAULT now(),

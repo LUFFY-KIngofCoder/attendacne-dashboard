@@ -29,7 +29,6 @@ export type Database = {
           role: 'admin' | 'employee';
           department_id: string | null;
           phone: string | null;
-          monthly_salary: number | null;
           join_date: string;
           is_active: boolean;
           must_change_password: boolean;
@@ -44,7 +43,6 @@ export type Database = {
           role?: 'admin' | 'employee';
           department_id?: string | null;
           phone?: string | null;
-          monthly_salary?: number | null;
           join_date?: string;
           is_active?: boolean;
           must_change_password?: boolean;
@@ -86,7 +84,7 @@ export type Database = {
           reason: string | null;
           check_in_time: string | null;
           check_out_time: string | null;
-          is_approved: boolean | null;
+          is_approved: boolean;
           approved_by: string | null;
           approved_at: string | null;
           created_at: string;
@@ -101,7 +99,7 @@ export type Database = {
           reason?: string | null;
           check_in_time?: string | null;
           check_out_time?: string | null;
-          is_approved?: boolean | null;
+          is_approved?: boolean;
           approved_by?: string | null;
           approved_at?: string | null;
           created_at?: string;
@@ -116,7 +114,7 @@ export type Database = {
           reason?: string | null;
           check_in_time?: string | null;
           check_out_time?: string | null;
-          is_approved?: boolean | null;
+          is_approved?: boolean;
           approved_by?: string | null;
           approved_at?: string | null;
           created_at?: string;
